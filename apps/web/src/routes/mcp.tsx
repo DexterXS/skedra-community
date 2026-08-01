@@ -1,8 +1,10 @@
 import { PublicSiteLayout } from "@/components/public/public-site-layout";
 import { Button } from "@/components/ui/button";
+import { formatFoundingTrialLabel } from "@/lib/billing-flow";
 import { trackGrowthEventOnce } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import { localizePublicPath } from "@/lib/public-path";
+import { trpc } from "@/lib/trpc";
 import {
 	ArrowRight,
 	Bot,
@@ -25,8 +27,8 @@ const copy = {
 		eyebrow: "Model Context Protocol für visuelle Arbeit",
 		title: "Das Whiteboard, das dein AI-Agent wirklich bearbeiten kann.",
 		lead: "Skedra verbindet Menschen und AI-Agenten auf einem gemeinsamen Infinite Canvas. Lass deinen Agenten Boards lesen, Kanban-Pläne, Gantt-Zeitachsen und Sequenzdiagramme erstellen – live und vollständig editierbar.",
-		trial: "30 Tage Founding-User-Zugang",
 		cta: "Kostenlos mit MCP starten",
+		paidCta: "MCP-Pläne ansehen",
 		github: "Community Edition",
 		prompt: "Plane unseren Beta-Launch als Kanban und Gantt-Zeitachse.",
 		answer: "Board aktualisiert · 18 Elemente · live synchronisiert",
@@ -57,8 +59,8 @@ const copy = {
 		eyebrow: "Model Context Protocol for visual work",
 		title: "The whiteboard your AI agent can actually edit.",
 		lead: "Skedra brings people and AI agents together on one infinite canvas. Let your agent read boards and create Kanban plans, Gantt timelines, and sequence diagrams—live and fully editable.",
-		trial: "30-day Founding User access",
 		cta: "Start with MCP for free",
+		paidCta: "View MCP plans",
 		github: "Community Edition",
 		prompt: "Plan our beta launch as a Kanban board and Gantt timeline.",
 		answer: "Board updated · 18 elements · synced live",
@@ -98,9 +100,16 @@ export function McpPage() {
 	const { locale } = useI18n();
 	const text = copy[locale];
 	const publicPath = (path: string) => localizePublicPath(path, locale);
+	const { data: publicConfig } = trpc.billing.getPublicConfig.useQuery();
+	const trialLabel = formatFoundingTrialLabel(
+		publicConfig?.foundingTrialDays,
+		locale,
+	);
 	const registerUrl = `/register?${new URLSearchParams({
 		redirect: "/settings?tab=api-keys",
 	}).toString()}`;
+	const primaryUrl = trialLabel ? registerUrl : publicPath("/pricing");
+	const primaryLabel = trialLabel ? text.cta : text.paidCta;
 
 	useEffect(() => {
 		trackGrowthEventOnce("mcp_setup_viewed", { context: "landing_page" });
@@ -122,15 +131,17 @@ export function McpPage() {
 						<p className="mt-6 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground">
 							{text.lead}
 						</p>
-						<div className="mt-5 flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-							<Check className="h-4 w-4" />
-							{text.trial} ·{" "}
-							{locale === "en" ? "no credit card" : "ohne Kreditkarte"}
-						</div>
+						{trialLabel ? (
+							<div className="mt-5 flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+								<Check className="h-4 w-4" />
+								{trialLabel} ·{" "}
+								{locale === "en" ? "no credit card" : "ohne Kreditkarte"}
+							</div>
+						) : null}
 						<div className="mt-8 flex flex-wrap gap-3">
 							<Button asChild size="lg">
-								<Link to={registerUrl}>
-									{text.cta}
+								<Link to={primaryUrl}>
+									{primaryLabel}
 									<ArrowRight className="h-4 w-4" />
 								</Link>
 							</Button>
@@ -274,7 +285,7 @@ export function McpPage() {
 					</p>
 					<div className="mt-7 flex flex-wrap justify-center gap-3">
 						<Button asChild size="lg" variant="secondary">
-							<Link to={registerUrl}>{text.cta}</Link>
+							<Link to={primaryUrl}>{primaryLabel}</Link>
 						</Button>
 						<Button
 							asChild

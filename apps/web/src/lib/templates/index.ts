@@ -4,15 +4,11 @@ import {
 	getDefaultKanbanBoardLists,
 	getDefaultKanbanCardTitle,
 } from "@/lib/canvas/kanban-options";
-import {
-	encodeYDocStateBase64,
-	objectToYMap,
-} from "@/lib/canvas/yjs-document-helpers";
+import { encodeCanvasSnapshotBase64 } from "@/lib/canvas/yjs-document-helpers";
 import {
 	type CanvasElement,
 	createCanvasTemplateElements,
 } from "@skedra/canvas-core";
-import * as Y from "yjs";
 import { createAiLaunchTemplate } from "./ai-launch";
 import { createFlowchartTemplate } from "./flowchart";
 import { createGanttTemplate } from "./gantt";
@@ -110,14 +106,5 @@ export const TEMPLATES: WhiteboardTemplate[] = [
 export function createBase64StateFromElements(
 	elements: CanvasElement[],
 ): string {
-	const ydoc = new Y.Doc();
-	const elementsMap = ydoc.getMap<Y.Map<unknown>>("elementsMap");
-
-	ydoc.transact(() => {
-		for (const element of elements) {
-			elementsMap.set(element.id, objectToYMap(element));
-		}
-	});
-
-	return encodeYDocStateBase64(ydoc);
+	return encodeCanvasSnapshotBase64({ elements });
 }

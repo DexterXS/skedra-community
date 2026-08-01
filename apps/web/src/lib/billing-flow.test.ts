@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { shouldStartSelectedCheckout } from "./billing-flow";
+import {
+	formatFoundingTrialLabel,
+	shouldStartSelectedCheckout,
+} from "./billing-flow";
 
 test("an explicitly selected paid plan starts Checkout during a complimentary trial", () => {
 	assert.equal(
@@ -36,4 +39,16 @@ test("ordinary paywall visits do not auto-start Checkout", () => {
 		}),
 		false,
 	);
+});
+
+test("Founding User copy follows the configured trial duration", () => {
+	assert.equal(
+		formatFoundingTrialLabel(14, "de"),
+		"14 Tage Founding-User-Zugang",
+	);
+	assert.equal(
+		formatFoundingTrialLabel(45, "en"),
+		"45-day Founding User access",
+	);
+	assert.equal(formatFoundingTrialLabel(0, "de"), null);
 });

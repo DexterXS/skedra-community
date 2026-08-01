@@ -4,6 +4,8 @@ import { createBaseCanvasElement } from "@skedra/canvas-core";
 import * as Y from "yjs";
 import {
 	applyPartialUpdatesToYMap,
+	applyYDocStateBase64,
+	encodeCanvasSnapshotBase64,
 	objectToYMap,
 	readCanvasMapsFromYDoc,
 	yMapToObject,
@@ -24,4 +26,37 @@ test("shares one Web-compatible Yjs document codec across hosts", () => {
 	assert.equal(state.elements.get(element.id)?.pyramidSections, 3);
 	assert.equal(state.elements.get(element.id)?.text, "Pyramid");
 	doc.destroy();
+});
+
+test("encodes a presentation frame as a reusable canvas snapshot", () => {
+	const element = createBaseCanvasElement(
+		{ createId: () => "slide-element", stroke: "#111111" },
+		{ type: "rectangle", text: "Current slide" },
+	);
+	const state = encodeCanvasSnapshotBase64({
+		elements: [element],
+		views: [
+			{
+				id: "slide",
+				name: "Current slide",
+				x: 0,
+				y: 0,
+				width: 1600,
+				height: 900,
+				createdAt: 1,
+				updatedAt: 1,
+				order: 0,
+				aspectRatio: "16:9",
+			},
+		],
+		canvasBg: "#f8fafc",
+	});
+	const restored = new Y.Doc();
+	applyYDocStateBase64(restored, state);
+	const snapshot = readCanvasMapsFromYDoc(restored);
+
+	assert.equal(snapshot.elements.get(element.id)?.text, "Current slide");
+	assert.equal(snapshot.views.get("slide")?.name, "Current slide");
+	assert.equal(snapshot.canvasBg, "#f8fafc");
+	restored.destroy();
 });

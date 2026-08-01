@@ -69,7 +69,7 @@ test("growth events wait for consent and use an expiring cross-session visitor i
 	try {
 		const analytics = await import("./growth-analytics");
 		assert.equal(analytics.getGrowthAnalyticsConsent(), "undecided");
-		assert.equal(analytics.trackGrowthEvent("page_view"), true);
+		assert.equal(analytics.trackGrowthEvent("page_view"), false);
 		assert.equal(requests.length, 0);
 		assert.equal(local.getItem("skedra-growth-visitor-v1"), null);
 
@@ -86,6 +86,8 @@ test("growth events wait for consent and use an expiring cross-session visitor i
 			visitor.expiresAt <= beforeGrant + 8 * 24 * 60 * 60 * 1000 + 1000,
 		);
 		assert.ok(session.getItem("skedra-growth-session-v1"));
+		assert.equal(analytics.trackGrowthEvent("mcp_setup_viewed"), true);
+		assert.equal(requests.length, 2);
 
 		analytics.setGrowthAnalyticsConsent("denied");
 		assert.equal(local.getItem("skedra-growth-visitor-v1"), null);

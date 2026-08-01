@@ -128,12 +128,45 @@ export function setCanvasBackgroundInYDoc(ydoc: Y.Doc, canvasBg: string) {
 	}
 }
 
+export function createYDocFromCanvasSnapshot(input: {
+	elements: Iterable<CanvasElement>;
+	views?: Iterable<SavedCanvasView>;
+	canvasBg?: string;
+}) {
+	const ydoc = new Y.Doc();
+	const elementsMap = ydoc.getMap<Y.Map<unknown>>(CANVAS_ELEMENTS_MAP_KEY);
+	const viewsMap = ydoc.getMap<Y.Map<unknown>>(CANVAS_VIEWS_MAP_KEY);
+
+	ydoc.transact(() => {
+		for (const element of input.elements) {
+			elementsMap.set(element.id, objectToYMap(element));
+		}
+		for (const view of input.views ?? []) {
+			viewsMap.set(view.id, objectToYMap(view));
+		}
+		setCanvasBackgroundInYDoc(ydoc, input.canvasBg ?? "");
+	});
+
+	return ydoc;
+}
+
 export function encodeYDocStateBase64(ydoc: Y.Doc) {
 	const update = Y.encodeStateAsUpdate(ydoc);
 	const binary = Array.from(update, (byte) => String.fromCharCode(byte)).join(
 		"",
 	);
 	return btoa(binary);
+}
+
+export function encodeCanvasSnapshotBase64(
+	input: Parameters<typeof createYDocFromCanvasSnapshot>[0],
+) {
+	const ydoc = createYDocFromCanvasSnapshot(input);
+	try {
+		return encodeYDocStateBase64(ydoc);
+	} finally {
+		ydoc.destroy();
+	}
 }
 
 export function applyYDocStateBase64(ydoc: Y.Doc, stateBase64: string) {

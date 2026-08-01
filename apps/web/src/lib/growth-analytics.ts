@@ -21,12 +21,7 @@ const CONSENT_KEY = "skedra-growth-consent-v1";
 const SESSION_KEY = "skedra-growth-session-v1";
 const UTM_KEY = "skedra-growth-utm-v1";
 const VISITOR_TTL_MS = 8 * 24 * 60 * 60 * 1000;
-const MAX_PENDING_EVENTS = 40;
 const sentOnce = new Set<string>();
-const pendingEvents: Array<{
-	event: GrowthEventName;
-	options: { context?: string; pathname?: string };
-}> = [];
 
 export type GrowthAnalyticsConsent = "undecided" | "granted" | "denied";
 let volatileConsent: GrowthAnalyticsConsent = "undecided";
@@ -66,16 +61,11 @@ export function setGrowthAnalyticsConsent(consent: "granted" | "denied") {
 	}
 
 	if (consent === "denied") {
-		pendingEvents.length = 0;
 		clearGrowthIdentifiers();
-	} else {
-		const queued = pendingEvents.splice(0);
-		for (const pending of queued) {
-			sendGrowthEvent(pending.event, pending.options);
-		}
-		if (previous === "denied" && typeof window !== "undefined") {
-			sendGrowthEvent("page_view", { pathname: window.location.pathname });
-		}
+	} else if (previous !== "granted" && typeof window !== "undefined") {
+		// The first event is created only after permission is granted. Events that
+		// happened while the choice was undecided are deliberately not replayed.
+		sendGrowthEvent("page_view", { pathname: window.location.pathname });
 	}
 
 	if (typeof window !== "undefined") {
@@ -188,13 +178,7 @@ export function trackGrowthEvent(
 ) {
 	if (typeof window === "undefined") return false;
 	const consent = getGrowthAnalyticsConsent();
-	if (consent === "denied") return false;
-	if (consent === "undecided") {
-		if (pendingEvents.length < MAX_PENDING_EVENTS) {
-			pendingEvents.push({ event, options });
-		}
-		return true;
-	}
+	if (consent !== "granted") return false;
 	sendGrowthEvent(event, options);
 	return true;
 }

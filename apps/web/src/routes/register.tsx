@@ -10,6 +10,11 @@ import {
 } from "@/lib/e2ee";
 import { trackGrowthEvent } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
+import {
+	buildEmailSignupPayload,
+	buildPostSignupRedirect,
+	safeSignupRedirect,
+} from "@/lib/registration-flow";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -20,21 +25,18 @@ export function RegisterPage() {
 	const { t } = useI18n();
 	const [searchParams] = useSearchParams();
 	const config = trpc.billing.getPublicConfig.useQuery();
-	const requestedRedirect = searchParams.get("redirect") || "/library";
+	const requestedRedirect = safeSignupRedirect(searchParams.get("redirect"));
 	const requestedPlan = searchParams.get("plan");
 	const plan =
 		requestedPlan === "pro_monthly" || requestedPlan === "pro_yearly"
 			? requestedPlan
 			: null;
 	const hasSelectedPlan = plan !== null;
-	const baseRedirectTo =
-		config.data?.managed && plan
-			? `/subscribe?${new URLSearchParams({
-					plan,
-					checkout: "start",
-					redirect: requestedRedirect,
-				}).toString()}`
-			: requestedRedirect;
+	const baseRedirectTo = buildPostSignupRedirect({
+		managed: config.data?.managed ?? false,
+		plan,
+		redirect: requestedRedirect,
+	});
 	const e2eeKeyFromHash = readE2eeKeyFromHash();
 	const redirectTo = e2eeKeyFromHash
 		? withE2eeKeyFragmentPath(baseRedirectTo, e2eeKeyFromHash)
@@ -92,17 +94,15 @@ export function RegisterPage() {
 		setLoading(true);
 
 		try {
-			const result = await authClient.signUp.email({
-				name,
-				email,
-				password,
-				inviteToken: inviteToken ?? undefined,
-			} as {
-				name: string;
-				email: string;
-				password: string;
-				inviteToken?: string;
-			});
+			const result = await authClient.signUp.email(
+				buildEmailSignupPayload({
+					name,
+					email,
+					password,
+					inviteToken: inviteToken ?? undefined,
+					callbackURL: redirectTo,
+				}) as Parameters<typeof authClient.signUp.email>[0],
+			);
 			if (result.error) {
 				setError(result.error.message ?? t("auth.register.failed"));
 				return;

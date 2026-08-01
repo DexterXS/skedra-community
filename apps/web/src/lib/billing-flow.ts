@@ -21,3 +21,13 @@ export function shouldStartSelectedCheckout(input: {
 	if (!input.startRequested || !input.plan) return false;
 	return !input.accessGranted || input.accessSource === "complimentary";
 }
+
+export function formatFoundingTrialLabel(
+	days: number | null | undefined,
+	locale: "de" | "en",
+) {
+	if (!days || days <= 0) return null;
+	return locale === "en"
+		? `${days}-day Founding User access`
+		: `${days} Tage Founding-User-Zugang`;
+}

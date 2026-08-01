@@ -38,7 +38,10 @@ import {
 	prepareStickyChecklistForEditing,
 	toggleStickyChecklistItem,
 } from "@/lib/canvas/sticky-note-utils";
-import { encodeYDocStateBase64 } from "@/lib/canvas/yjs-document-helpers";
+import {
+	encodeCanvasSnapshotBase64,
+	encodeYDocStateBase64,
+} from "@/lib/canvas/yjs-document-helpers";
 import { useI18n } from "@/lib/i18n";
 import type { MentionCandidate } from "@/lib/mention-utils";
 import {
@@ -561,9 +564,21 @@ export function SkedraCanvas({
 	useEffect(() => {
 		if (!getSaveStateRef) return;
 		getSaveStateRef.current = () => {
-			if (!syncRef.current.isConnected) return null;
-			const ydoc = syncRef.current.getYDoc();
-			return ydoc ? encodeYDocStateBase64(ydoc) : null;
+			const currentSync = syncRef.current;
+			if (!currentSync.isConnected) return null;
+			const ydoc = currentSync.getYDoc();
+			if (ydoc) return encodeYDocStateBase64(ydoc);
+			if (
+				"presentationIsLive" in currentSync &&
+				!currentSync.presentationIsLive
+			) {
+				return null;
+			}
+			return encodeCanvasSnapshotBase64({
+				elements: currentSync.scene.getSortedElements(),
+				views: currentSync.views.values(),
+				canvasBg: currentSync.canvasBg,
+			});
 		};
 		return () => {
 			getSaveStateRef.current = null;

@@ -9,7 +9,7 @@ import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { getTrpcErrorMessage } from "@/lib/trpc-errors";
 import { Presentation } from "lucide-react";
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 
 const SkedraCanvas = lazy(() =>
@@ -22,6 +22,7 @@ export function PresentationPage() {
 	const { shareToken } = useParams();
 	const { t } = useI18n();
 	const [e2eeKey, setE2eeKey] = useState<string | null>(null);
+	const templateStateRef = useRef<(() => string | null) | null>(null);
 
 	const { data, error, isLoading } =
 		trpc.whiteboard.getPresentationAccess.useQuery(
@@ -59,7 +60,7 @@ export function PresentationPage() {
 	}
 
 	return (
-		<ShareTokenCanvasFrame>
+		<ShareTokenCanvasFrame templateStateRef={templateStateRef}>
 			<SkedraCanvas
 				whiteboardId={data.whiteboardId}
 				encryptionMode={data.encryptionMode}
@@ -69,6 +70,7 @@ export function PresentationPage() {
 				forceReadonly
 				presenceEnabled={data.presenceEnabled}
 				audienceBoardName={data.whiteboardName}
+				getSaveStateRef={templateStateRef}
 			/>
 		</ShareTokenCanvasFrame>
 	);

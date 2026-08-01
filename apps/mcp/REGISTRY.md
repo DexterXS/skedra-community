@@ -32,6 +32,11 @@ mcp-publisher publish
 
 The GitHub account used for login must control the `moonriddim` namespace.
 
+For repeatable releases, run the repository's **Publish MCP Registry** GitHub
+Actions workflow. It downloads the pinned publisher with SHA-256 verification,
+authenticates through GitHub OIDC, validates the metadata, publishes it and
+checks that the new entry is searchable.
+
 Verify the published entry:
 
 ```powershell

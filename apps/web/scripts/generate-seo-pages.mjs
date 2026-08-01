@@ -23,6 +23,8 @@ const routeFiles = new Map(
 		"/en",
 		"/whiteboard",
 		"/en/whiteboard",
+		"/mcp",
+		"/en/mcp",
 		"/pricing",
 		"/en/pricing",
 		"/privacy",
@@ -176,6 +178,12 @@ function staticContent(route) {
 		}
 		return `<main class="seo-fallback"><article><h1>Das freie Online-Whiteboard für Ideen, Diagramme und Teams</h1><p>Skedra ist ein browserbasiertes Infinite Canvas für Skizzen, Mindmaps, Flussdiagramme, Kanban-Boards und Workshops. Das kostenlose Whiteboard funktioniert ohne Registrierung und speichert lokal auf deinem Gerät. Skedra Cloud ergänzt verschlüsselte Speicherung, Live-Zusammenarbeit, Teams, Kommentare und Präsentationen.</p><nav><a href="/">Whiteboard öffnen</a><a href="/pricing">Preise vergleichen</a></nav><h2>Funktionen</h2><ul><li>Infinite Canvas mit Zeichnungen, Text, Formen, Pfeilen und Sticky Notes</li><li>Mindmaps, Flowcharts, Kanban-Boards und Vorlagen</li><li>Export als PNG, SVG, PDF, PPTX und Skedra-Datei</li><li>Optional: Cloud-Boards, Teams, Kommentare, Präsentationen und Freigaben</li><li>Ende-zu-Ende- oder serververwaltete Verschlüsselung</li></ul><h2>Free oder Cloud?</h2><p>Skedra Free kostet CHF 0 und speichert lokal im Browser. Skedra Cloud kostet CHF 4.90 monatlich oder CHF 49 jährlich pro Person und ergänzt dauerhafte Cloud-Synchronisierung und Zusammenarbeit.</p></article></main>`;
 	}
+	if (route === "/mcp" || route === "/en/mcp") {
+		if (route === "/en/mcp") {
+			return `<main class="seo-fallback"><article><h1>The whiteboard your AI agent can actually edit</h1><p>Skedra connects people and AI agents on one infinite canvas. Its remote Model Context Protocol server lets Codex, Claude, Cursor, OpenCode and compatible clients create and edit real boards, Kanban plans, Gantt timelines and sequence diagrams.</p><h2>Structured canvas tools</h2><p>Agents use 23 focused tools to read and update editable Skedra elements rather than producing flat screenshots.</p><h2>Cloud or self-hosted</h2><p>Connect to the OAuth-capable remote endpoint or run the complete AGPL Community Edition on your own infrastructure.</p><nav><a href="/register?redirect=%2Fsettings%3Ftab%3Dapi-keys">Start the 30-day Founding User trial</a><a href="https://github.com/moonriddim/skedra-community">View the Community Edition</a><a href="/mcp.md">Read MCP setup documentation</a></nav></article></main>`;
+		}
+		return `<main class="seo-fallback"><article><h1>Das Whiteboard, das dein AI-Agent wirklich bearbeiten kann</h1><p>Skedra verbindet Menschen und AI-Agenten auf einem Infinite Canvas. Über den Remote-Server für das Model Context Protocol können Codex, Claude, Cursor, OpenCode und kompatible Clients echte Boards, Kanban-Pläne, Gantt-Zeitachsen und Sequenzdiagramme erstellen und bearbeiten.</p><h2>Strukturierte Canvas-Tools</h2><p>Agenten nutzen 23 fokussierte Tools und erzeugen editierbare Skedra-Elemente statt flacher Screenshots.</p><h2>Cloud oder selbst gehostet</h2><p>Verbinde den OAuth-fähigen Remote-Endpunkt oder betreibe die vollständige AGPL Community Edition auf eigener Infrastruktur.</p><nav><a href="/register?redirect=%2Fsettings%3Ftab%3Dapi-keys">30 Tage Founding-User-Trial starten</a><a href="https://github.com/moonriddim/skedra-community">Community Edition ansehen</a><a href="/mcp.md">MCP-Dokumentation lesen</a></nav></article></main>`;
+	}
 	if (route === "/pricing" || route === "/en/pricing") {
 		if (route === "/en/pricing") {
 			return `<main class="seo-fallback"><article><h1>Skedra pricing: Free Whiteboard or Cloud</h1><p>The Skedra editor remains free. You only pay for persistent cloud storage, synchronization and collaboration.</p><table><thead><tr><th>Plan</th><th>Price</th><th>Included</th></tr></thead><tbody><tr><th>Skedra Free</th><td>CHF 0</td><td>Infinite canvas, local browser storage, exports, templates, no account</td></tr><tr><th>Skedra Cloud monthly</th><td>CHF 4.90 per person</td><td>Cloud boards, encryption, live collaboration, comments, teams and presentations</td></tr><tr><th>Skedra Cloud yearly</th><td>CHF 49 per person</td><td>Same features, billed yearly</td></tr></tbody></table><h2>Frequently asked questions</h2><h3>Do I need an account for Skedra Free?</h3><p>No. The free whiteboard works directly in the browser and stores locally.</p><h3>Can I self-host Skedra?</h3><p>Yes. The Community Edition runs on your own infrastructure without the Skedra Cloud paywall.</p><nav><a href="/en">Draw for free</a><a href="/pricing.md">Machine-readable pricing</a></nav></article></main>`;
@@ -212,6 +220,7 @@ function renderRoute(route) {
 	const baseAlternates = new Map([
 		["/", "/en"],
 		["/whiteboard", "/en/whiteboard"],
+		["/mcp", "/en/mcp"],
 		["/pricing", "/en/pricing"],
 	]);
 	const reverseAlternates = new Map(
@@ -320,6 +329,8 @@ const lastModified = new Map([
 	["/privacy", "2026-07-13"],
 	["/terms", "2026-07-13"],
 	["/imprint", "2026-07-13"],
+	["/mcp", "2026-08-01"],
+	["/en/mcp", "2026-08-01"],
 ]);
 const sitemapEntries = [
 	...sitemapRoutes.map((route) => ({
@@ -331,6 +342,7 @@ const sitemapEntries = [
 	})),
 	{ loc: "https://skedra.xyz/product.md", lastmod: "2026-07-14" },
 	{ loc: "https://skedra.xyz/pricing.md", lastmod: "2026-07-14" },
+	{ loc: "https://skedra.xyz/mcp.md", lastmod: "2026-08-01" },
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries
 	.map(

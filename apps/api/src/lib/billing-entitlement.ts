@@ -7,6 +7,31 @@ import { and, desc, eq, gt, isNull, or } from "drizzle-orm";
 import { env } from "../env";
 import { subscriptionGrantsProductAccess } from "./access-policy";
 
+export async function grantFoundingUserTrial(db: Database, userId: string) {
+	if (
+		env.SKEDRA_DEPLOYMENT_MODE !== "managed" ||
+		env.SKEDRA_FOUNDING_TRIAL_DAYS <= 0
+	) {
+		return null;
+	}
+
+	const expiresAt = new Date(
+		Date.now() + env.SKEDRA_FOUNDING_TRIAL_DAYS * 24 * 60 * 60 * 1000,
+	);
+	const [grant] = await db
+		.insert(complimentaryAccessGrants)
+		.values({
+			userId,
+			reason: "Founding User Trial",
+			expiresAt,
+			grantedByEmail: "system@skedra.xyz",
+		})
+		.onConflictDoNothing()
+		.returning();
+
+	return grant ?? null;
+}
+
 export async function getUserSubscriptionEntitlement(
 	db: Database,
 	userId: string,

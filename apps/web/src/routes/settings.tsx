@@ -1,4 +1,5 @@
 import { BillingSettings } from "@/components/settings/billing-settings";
+import { GrowthAnalyticsSettings } from "@/components/settings/growth-analytics-settings";
 import { ProfileAccountSecurity } from "@/components/settings/profile-account-security";
 import { ProfileImageEditor } from "@/components/settings/profile-image-editor";
 import { SystemCallSettings } from "@/components/settings/system-call-settings";
@@ -18,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { getAbsoluteApiBaseUrl } from "@/lib/api-url";
 import { authClient } from "@/lib/auth-client";
+import { trackGrowthEvent, trackGrowthEventOnce } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import {
 	type McpClient,
@@ -43,6 +45,7 @@ import {
 import {
 	ArrowLeft,
 	BadgeCheck,
+	BarChart3,
 	Check,
 	Code2,
 	Copy,
@@ -72,6 +75,7 @@ type SettingsTab =
 	| "billing"
 	| "api-keys"
 	| "ai"
+	| "growth"
 	| "system";
 
 const SCOPE_LABELS: Record<SkedraApiKeyScope, string> = {
@@ -97,6 +101,7 @@ export function ApiKeysSettingsPage() {
 		trpc.ai.getSettings.useQuery();
 	const { data: team, isLoading: teamLoading } = trpc.team.get.useQuery();
 	const { data: billingStatus } = trpc.billing.getStatus.useQuery();
+	const { data: growthOverview } = trpc.growth.getOverview.useQuery();
 	const { data: mailStatus } = trpc.instance.getMailStatus.useQuery(undefined, {
 		enabled: billingStatus?.available === false,
 		retry: false,
@@ -106,6 +111,7 @@ export function ApiKeysSettingsPage() {
 		billingStatus?.available === false && mailStatus?.isAdmin === true;
 	const showTeamTab = team?.canManageWorkspace ?? false;
 	const showBillingTab = billingStatus?.available === true;
+	const showGrowthTab = growthOverview?.canView === true;
 	const [searchParams] = useSearchParams();
 
 	const tabFromUrl = searchParams.get("tab");
@@ -118,9 +124,11 @@ export function ApiKeysSettingsPage() {
 					? "api-keys"
 					: tabFromUrl === "ai"
 						? "ai"
-						: tabFromUrl === "system" && showSystemTab
-							? "system"
-							: "profile";
+						: tabFromUrl === "growth" && showGrowthTab
+							? "growth"
+							: tabFromUrl === "system" && showSystemTab
+								? "system"
+								: "profile";
 
 	const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
 
@@ -142,7 +150,8 @@ export function ApiKeysSettingsPage() {
 		if (activeTab === "system" && !showSystemTab) setActiveTab("profile");
 		if (activeTab === "team" && !showTeamTab) setActiveTab("profile");
 		if (activeTab === "billing" && !showBillingTab) setActiveTab("profile");
-	}, [activeTab, showBillingTab, showSystemTab, showTeamTab]);
+		if (activeTab === "growth" && !showGrowthTab) setActiveTab("profile");
+	}, [activeTab, showBillingTab, showGrowthTab, showSystemTab, showTeamTab]);
 
 	useEffect(() => {
 		if (tabFromUrl === "billing" && showBillingTab) setActiveTab("billing");
@@ -151,6 +160,10 @@ export function ApiKeysSettingsPage() {
 	useEffect(() => {
 		if (tabFromUrl === "system" && showSystemTab) setActiveTab("system");
 	}, [showSystemTab, tabFromUrl]);
+
+	useEffect(() => {
+		if (tabFromUrl === "growth" && showGrowthTab) setActiveTab("growth");
+	}, [showGrowthTab, tabFromUrl]);
 	const [newKeyName, setNewKeyName] = useState("");
 	const [selectedScopes, setSelectedScopes] = useState<SkedraApiKeyScope[]>([
 		...SKEDRA_API_KEY_DEFAULT_SCOPES,
@@ -172,6 +185,7 @@ export function ApiKeysSettingsPage() {
 
 	const createKey = trpc.apiKey.create.useMutation({
 		onSuccess: (result) => {
+			trackGrowthEvent("mcp_key_created", { context: mcpClient });
 			setCreatedKey(result.plainKey);
 			setNewKeyName("");
 			setSelectedScopes([...SKEDRA_API_KEY_DEFAULT_SCOPES]);
@@ -179,6 +193,12 @@ export function ApiKeysSettingsPage() {
 			void utils.apiKey.list.invalidate();
 		},
 	});
+
+	useEffect(() => {
+		if (activeTab === "api-keys") {
+			trackGrowthEventOnce("mcp_setup_viewed", { context: "settings" });
+		}
+	}, [activeTab]);
 
 	const upsertAi = trpc.ai.upsertSettings.useMutation({
 		onSuccess: (_result, variables) => {
@@ -430,6 +450,20 @@ export function ApiKeysSettingsPage() {
 								<span>{t("common.systemSettings")}</span>
 							</button>
 						) : null}
+						{showGrowthTab ? (
+							<button
+								type="button"
+								onClick={() => setActiveTab("growth")}
+								className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
+									activeTab === "growth"
+										? "bg-primary/10 text-primary"
+										: "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+								}`}
+							>
+								<BarChart3 className="h-4 w-4" />
+								<span>Growth-Funnel</span>
+							</button>
+						) : null}
 					</nav>
 
 					<div className="hidden lg:block pt-4 border-t border-border">
@@ -625,6 +659,10 @@ export function ApiKeysSettingsPage() {
 					)}
 
 					{activeTab === "billing" && showBillingTab && <BillingSettings />}
+
+					{activeTab === "growth" && showGrowthTab && (
+						<GrowthAnalyticsSettings />
+					)}
 
 					{activeTab === "api-keys" && (
 						<div className="space-y-6 animate-in fade-in-50 duration-200">

@@ -13,6 +13,7 @@ import {
 	clearLocalCanvasState,
 	loadLocalCanvasStateBase64,
 	saveLocalCanvasStateBase64,
+	takePendingTemplateStateBase64,
 } from "@/lib/canvas/local-canvas-storage";
 import { applySkedraFileToYDoc } from "@/lib/canvas/skedra-file-utils";
 import {
@@ -77,12 +78,18 @@ export function useLocalCanvasSync(enabled = true) {
 		const ydoc = new Y.Doc({ gc: false });
 		ydocRef.current = ydoc;
 
-		const savedState = loadLocalCanvasStateBase64();
-		if (savedState) {
+		const pendingTemplateState = takePendingTemplateStateBase64();
+		const localState = loadLocalCanvasStateBase64();
+		for (const initialState of [pendingTemplateState, localState]) {
+			if (!initialState) continue;
 			try {
-				applyYDocStateBase64(ydoc, savedState);
+				applyYDocStateBase64(ydoc, initialState);
+				if (initialState === pendingTemplateState) {
+					saveLocalCanvasStateBase64(initialState);
+				}
+				break;
 			} catch {
-				// Beschaedigter lokaler Stand — mit leerem Canvas starten.
+				// Try the existing local board if a pending template is damaged.
 			}
 		}
 

@@ -1,3 +1,4 @@
+import { GrowthAnalyticsPrivacyControls } from "@/components/public/growth-consent";
 import { LegalPage, LegalSection } from "@/components/public/legal-page";
 import { legalIdentity } from "@/lib/legal";
 
@@ -258,11 +259,25 @@ export function PrivacyPage() {
 					Sitzungsverwaltung sowie Local Storage, Session Storage und IndexedDB
 					für Canvas-Daten, E2EE-Schlüssel, ausstehende verschlüsselte Updates,
 					Ansichtspositionen, Undo-Historie, Sprache, Darstellung und
-					Bibliotheken. Es werden derzeit keine Werbe-Cookies eingesetzt. Falls
-					später optionale Analyse- oder Marketingdienste hinzukommen, wird
-					diese Erklärung aktualisiert und eine erforderliche Einwilligung
-					eingeholt.
+					Bibliotheken. Es werden keine Werbe-Cookies eingesetzt.
 				</p>
+				<p>
+					Auf skedra.xyz erfasst Skedra ein eigenes, inhaltsfreies
+					Produkt-Funnel-Tracking, sofern du es zuvor ausdrücklich erlaubst.
+					Dabei werden nur fest definierte Ereignisse wie Seitenaufruf,
+					Canvas-Aktivierung, Export, Registrierung, Checkout, Freigabe oder
+					MCP-Einrichtung verarbeitet. Eine zufällige Browserkennung läuft
+					spätestens nach acht Tagen ab; eine zusätzliche Sitzungskennung gilt
+					nur für die aktuelle Browsersitzung. Beide werden auf dem Server vor
+					der Speicherung einseitig gehasht. Zusätzlich können der gekürzte
+					Seitenpfad, die Referrer-Domain und UTM-Kampagnenfelder gespeichert
+					werden. Boardnamen, Canvas-Inhalte, Prompts, E-Mail-Adressen,
+					Share-Token und vollständige Ziel-URLs werden nicht in diese
+					Analyseereignisse aufgenommen. Die Ereignisse werden nach spätestens
+					180 Tagen gelöscht und nicht an einen externen Analysedienst
+					weitergegeben.
+				</p>
+				<GrowthAnalyticsPrivacyControls />
 			</LegalSection>
 
 			<LegalSection title="16. Empfänger und Bekanntgaben ins Ausland">

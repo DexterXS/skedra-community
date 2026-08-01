@@ -1,6 +1,7 @@
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { trackGrowthEvent, trackGrowthEventOnce } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import {
@@ -29,11 +30,13 @@ export type SubscriptionPlanCode = "pro_monthly" | "pro_yearly";
 interface SubscriptionPaywallProps {
 	initialPlan?: SubscriptionPlanCode;
 	redirect?: string;
+	allowComplimentaryAccessCheckout?: boolean;
 }
 
 export function SubscriptionPaywall({
 	initialPlan,
 	redirect,
+	allowComplimentaryAccessCheckout = false,
 }: SubscriptionPaywallProps = {}) {
 	const { t } = useI18n();
 	const [searchParams] = useSearchParams();
@@ -59,14 +62,33 @@ export function SubscriptionPaywall({
 			!initialPlan ||
 			checkoutStarted.current ||
 			!billing?.configured ||
-			billing.accessGranted ||
+			(billing.accessGranted && !allowComplimentaryAccessCheckout) ||
 			canUsePortal
 		) {
 			return;
 		}
 		checkoutStarted.current = true;
+		trackGrowthEvent("checkout_started", { context: initialPlan });
 		checkout.mutate({ plan: initialPlan, redirect });
-	}, [billing, canUsePortal, checkout, initialPlan, redirect]);
+	}, [
+		allowComplimentaryAccessCheckout,
+		billing,
+		canUsePortal,
+		checkout,
+		initialPlan,
+		redirect,
+	]);
+
+	useEffect(() => {
+		if (searchParams.get("checkout") === "success") {
+			trackGrowthEventOnce("checkout_completed", { context: "stripe" });
+		}
+	}, [searchParams]);
+
+	const choosePlan = (plan: SubscriptionPlanCode) => {
+		trackGrowthEvent("checkout_started", { context: plan });
+		checkout.mutate({ plan, redirect });
+	};
 
 	return (
 		<div className="min-h-screen bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/0.12),transparent_38%),linear-gradient(to_bottom,hsl(var(--background)),hsl(var(--muted)/0.35))] px-4 py-8 sm:py-14">
@@ -115,7 +137,7 @@ export function SubscriptionPaywall({
 				) : !canUsePortal ? (
 					<SubscriptionPlanCards
 						loading={checkout.isPending}
-						onChoose={(plan) => checkout.mutate({ plan, redirect })}
+						onChoose={choosePlan}
 					/>
 				) : (
 					<div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-amber-500/30 bg-background/85 p-6 text-center shadow-sm">

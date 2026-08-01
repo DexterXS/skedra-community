@@ -3,6 +3,7 @@ import {
 	type SubscriptionPlanCode,
 } from "@/components/billing/subscription-paywall";
 import { authClient } from "@/lib/auth-client";
+import { shouldStartSelectedCheckout } from "@/lib/billing-flow";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
 import { Navigate, useSearchParams } from "react-router";
@@ -55,11 +56,20 @@ export function SubscribePage() {
 
 	if (session?.user) {
 		if (billing.isPending) return <PageLoader />;
-		if (billing.data?.accessGranted) return <Navigate to={redirect} replace />;
+		const startSelectedCheckout = shouldStartSelectedCheckout({
+			startRequested: startCheckout,
+			plan,
+			accessGranted: billing.data?.accessGranted ?? false,
+			accessSource: billing.data?.accessSource,
+		});
+		if (billing.data?.accessGranted && !startSelectedCheckout) {
+			return <Navigate to={redirect} replace />;
+		}
 		return (
 			<SubscriptionPaywall
-				initialPlan={startCheckout ? plan : undefined}
+				initialPlan={startSelectedCheckout ? plan : undefined}
 				redirect={redirect}
+				allowComplimentaryAccessCheckout={startSelectedCheckout}
 			/>
 		);
 	}

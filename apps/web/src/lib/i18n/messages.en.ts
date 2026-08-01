@@ -3144,6 +3144,10 @@ export const enMessages = {
 	},
 	templates: {
 		title: "Templates",
+		"ai-launch": {
+			name: "AI product launch",
+			description: "Demo board with Kanban tasks and an aligned Gantt timeline",
+		},
 		kanban: {
 			name: "Kanban board",
 			description:

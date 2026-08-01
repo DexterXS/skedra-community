@@ -239,6 +239,15 @@ jobs:
 
           curl --fail --silent --show-error https://skedra.xyz/two-factor >/dev/null
 
+          mcp_html="$(curl --fail --silent --show-error https://skedra.xyz/mcp)"
+          printf '%s' "$mcp_html" | grep --quiet --fixed-strings 'Das Whiteboard, das dein AI-Agent wirklich bearbeiten kann'
+
+          mcp_en_html="$(curl --fail --silent --show-error https://skedra.xyz/en/mcp)"
+          printf '%s' "$mcp_en_html" | grep --quiet --fixed-strings 'The whiteboard your AI agent can actually edit'
+
+          mcp_markdown="$(curl --fail --silent --show-error https://skedra.xyz/mcp.md)"
+          printf '%s' "$mcp_markdown" | grep --quiet --fixed-strings '# Skedra MCP'
+
           websocket_status="$(curl --http1.1 --silent --show-error --max-time 10 \
             --output /dev/null --write-out '%{http_code}' \
             --header 'Connection: Upgrade' \

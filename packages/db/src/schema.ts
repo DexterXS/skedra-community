@@ -908,6 +908,36 @@ export const complimentaryAccessGrants = pgTable(
 	],
 );
 
+/**
+ * Privacy-sparse product funnel events for the managed Skedra service.
+ *
+ * Visitor and session identifiers are one-way HMACs. Board contents, prompts,
+ * element data, share tokens and raw URLs must never be written to this table.
+ */
+export const growthEvents = pgTable(
+	"growth_events",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		event: text("event").notNull(),
+		visitorHash: text("visitor_hash").notNull(),
+		sessionHash: text("session_hash").notNull(),
+		pathname: text("pathname").notNull(),
+		context: text("context"),
+		referrerHost: text("referrer_host"),
+		utmSource: text("utm_source"),
+		utmMedium: text("utm_medium"),
+		utmCampaign: text("utm_campaign"),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+	},
+	(table) => [
+		index("growth_events_event_created_idx").on(table.event, table.createdAt),
+		index("growth_events_visitor_created_idx").on(
+			table.visitorHash,
+			table.createdAt,
+		),
+	],
+);
+
 /** Webhook event IDs make Stripe's at-least-once delivery safe to retry. */
 export const stripeWebhookEvents = pgTable("stripe_webhook_events", {
 	id: text("id").primaryKey(),

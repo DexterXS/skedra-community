@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n";
 const deToEnPath = new Map([
 	["/", "/en"],
 	["/whiteboard", "/en/whiteboard"],
+	["/mcp", "/en/mcp"],
 	["/pricing", "/en/pricing"],
 	["/about", "/en/about"],
 	["/guides", "/en/guides"],

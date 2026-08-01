@@ -1,6 +1,6 @@
 # Skedra Pricing
 
-Last updated: 2026-07-14
+Last updated: 2026-08-01
 Currency: CHF
 Prices are per person where specified. Taxes are shown according to the Stripe checkout.
 
@@ -20,6 +20,14 @@ Prices are per person where specified. Taxes are shown according to the Stripe c
 - Included: Everything in Free, unlimited cloud boards and folders, encrypted cloud storage, live collaboration, comments, presentations, teams, roles, share permissions, API keys and MCP
 - Cancellation: Monthly
 
+## Founding User trial
+
+- Duration: 30 days from account creation while the offer is active
+- Price: CHF 0
+- Credit card required: No
+- Included: Skedra Cloud features, API keys and MCP
+- Renewal: No automatic paid renewal; the user chooses a paid plan after the trial
+
 ## Skedra Cloud Yearly
 
 - Price: CHF 49 per person
@@ -36,5 +44,6 @@ The Skedra Community Edition can be hosted on your own infrastructure and does n
 
 - Interactive pricing: https://skedra.xyz/pricing
 - Product overview: https://skedra.xyz/whiteboard
+- MCP for AI agents: https://skedra.xyz/mcp
 - Terms: https://skedra.xyz/terms
 - Support: support@skedra.xyz

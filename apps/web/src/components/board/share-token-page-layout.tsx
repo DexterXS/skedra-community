@@ -4,8 +4,17 @@
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
-import { type ReactNode, Suspense } from "react";
+import { savePendingTemplateStateBase64 } from "@/lib/canvas/local-canvas-storage";
+import { trackGrowthEvent } from "@/lib/growth-analytics";
+import { useI18n } from "@/lib/i18n";
+import { localizePublicPath } from "@/lib/public-path";
+import { ArrowLeft, CopyPlus, Loader2 } from "lucide-react";
+import {
+	type MutableRefObject,
+	type ReactNode,
+	Suspense,
+	useState,
+} from "react";
 import { Link } from "react-router";
 
 export function ShareTokenLoadingScreen() {
@@ -50,7 +59,13 @@ export function ShareTokenUnavailableCard({
 	);
 }
 
-export function ShareTokenCanvasFrame({ children }: { children: ReactNode }) {
+export function ShareTokenCanvasFrame({
+	children,
+	templateStateRef,
+}: {
+	children: ReactNode;
+	templateStateRef?: MutableRefObject<(() => string | null) | null>;
+}) {
 	return (
 		<div className="relative h-screen overflow-hidden bg-background">
 			<Suspense
@@ -62,6 +77,64 @@ export function ShareTokenCanvasFrame({ children }: { children: ReactNode }) {
 			>
 				{children}
 			</Suspense>
+			<PublicBoardAttribution templateStateRef={templateStateRef} />
+		</div>
+	);
+}
+
+function PublicBoardAttribution({
+	templateStateRef,
+}: {
+	templateStateRef?: MutableRefObject<(() => string | null) | null>;
+}) {
+	const { locale } = useI18n();
+	const [copyUnavailable, setCopyUnavailable] = useState(false);
+	const homePath = localizePublicPath("/", locale);
+	const useTemplate = () => {
+		const state = templateStateRef?.current?.();
+		if (!state) {
+			setCopyUnavailable(true);
+			setTimeout(() => setCopyUnavailable(false), 2500);
+			return;
+		}
+		savePendingTemplateStateBase64(state);
+		trackGrowthEvent("template_used", { context: "public_board" });
+		window.location.assign(
+			`${homePath}?utm_source=public_board&utm_medium=product`,
+		);
+	};
+
+	return (
+		<div className="absolute bottom-3 right-3 z-50 flex max-w-[calc(100vw-1.5rem)] items-center gap-1 rounded-xl border border-border bg-background/92 p-1 shadow-lg backdrop-blur">
+			<Button asChild variant="ghost" size="sm" className="h-8 px-2.5">
+				<Link to={`${homePath}?utm_source=public_board&utm_medium=product`}>
+					<BrandLogo showWordmark={false} markClassName="h-5 w-5" />
+					<span className="hidden sm:inline">Made with Skedra</span>
+				</Link>
+			</Button>
+			{templateStateRef ? (
+				<Button
+					variant="secondary"
+					size="sm"
+					className="h-8 px-2.5"
+					onClick={useTemplate}
+				>
+					{copyUnavailable ? (
+						<Loader2 className="h-3.5 w-3.5 animate-spin" />
+					) : (
+						<CopyPlus className="h-3.5 w-3.5" />
+					)}
+					<span className="hidden sm:inline">
+						{copyUnavailable
+							? locale === "en"
+								? "Board is still loading"
+								: "Board lädt noch"
+							: locale === "en"
+								? "Use as template"
+								: "Als Vorlage verwenden"}
+					</span>
+				</Button>
+			) : null}
 		</div>
 	);
 }

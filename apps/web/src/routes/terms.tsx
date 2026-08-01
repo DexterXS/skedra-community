@@ -27,11 +27,15 @@ export function TermsPage() {
 
 			<LegalSection title="3. Konto und Vertragsabschluss">
 				<p>
-					Für Skedra Cloud ist ein persönliches Konto und ein aktives Abonnement
-					erforderlich. Der Vertrag kommt zustande, wenn der ausgewählte Tarif
-					im Stripe-Checkout zahlungspflichtig bestätigt wurde. Angaben bei der
-					Registrierung müssen vollständig und korrekt sein. Zugangsdaten dürfen
-					nicht an Dritte weitergegeben werden.
+					Für Skedra Cloud ist ein persönliches Konto sowie ein aktiver Test-,
+					Kulanz- oder Abonnementzugang erforderlich. Ein angebotener
+					Founding-User-Testzugang endet nach der angezeigten Dauer, verlangt
+					keine Kreditkarte und wandelt sich nicht automatisch in ein
+					kostenpflichtiges Abonnement um. Ein kostenpflichtiger Vertrag kommt
+					zustande, wenn der ausgewählte Tarif im Stripe-Checkout
+					zahlungspflichtig bestätigt wurde. Angaben bei der Registrierung
+					müssen vollständig und korrekt sein. Zugangsdaten dürfen nicht an
+					Dritte weitergegeben werden.
 				</p>
 			</LegalSection>
 

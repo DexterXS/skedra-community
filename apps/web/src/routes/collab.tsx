@@ -8,11 +8,12 @@ import {
 	ShareTokenUnavailableCard,
 } from "@/components/board/share-token-page-layout";
 import { getKnownE2eeKey } from "@/lib/e2ee";
+import { trackGrowthEventOnce } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { getTrpcErrorMessage } from "@/lib/trpc-errors";
 import { Link2 } from "lucide-react";
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router";
 
 const SkedraCanvas = lazy(() =>
@@ -25,6 +26,7 @@ export function CollabPage() {
 	const { shareToken } = useParams();
 	const { t } = useI18n();
 	const [e2eeKey, setE2eeKey] = useState<string | null>(null);
+	const templateStateRef = useRef<(() => string | null) | null>(null);
 
 	const { data, error, isLoading } =
 		trpc.whiteboard.resolveCollabShare.useQuery(
@@ -36,6 +38,10 @@ export function CollabPage() {
 		if (!data?.whiteboardId || data.encryptionMode !== "e2ee") return;
 		setE2eeKey(getKnownE2eeKey(data.whiteboardId));
 	}, [data?.encryptionMode, data?.whiteboardId]);
+
+	useEffect(() => {
+		if (data) trackGrowthEventOnce("share_viewed", { context: "collab" });
+	}, [data]);
 
 	if (!shareToken) return null;
 	if (isLoading) return <ShareTokenLoadingScreen />;
@@ -56,7 +62,7 @@ export function CollabPage() {
 	}
 
 	return (
-		<ShareTokenCanvasFrame>
+		<ShareTokenCanvasFrame templateStateRef={templateStateRef}>
 			<SkedraCanvas
 				whiteboardId={data.whiteboardId}
 				encryptionMode={data.encryptionMode}
@@ -64,6 +70,7 @@ export function CollabPage() {
 				e2eeKey={e2eeKey}
 				forceReadonly={!data.canWrite}
 				audienceBoardName={data.whiteboardName}
+				getSaveStateRef={templateStateRef}
 			/>
 		</ShareTokenCanvasFrame>
 	);

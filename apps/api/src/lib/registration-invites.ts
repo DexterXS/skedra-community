@@ -211,6 +211,19 @@ export async function completeRegistrationInvite(
 			invite.complimentaryAccessReason &&
 			invite.complimentaryAccessGrantedByEmail
 		) {
+			await tx
+				.update(complimentaryAccessGrants)
+				.set({
+					revokedAt: acceptedAt,
+					revokedByEmail: invite.complimentaryAccessGrantedByEmail,
+				})
+				.where(
+					and(
+						eq(complimentaryAccessGrants.userId, user.id),
+						eq(complimentaryAccessGrants.reason, "Founding User Trial"),
+						isNull(complimentaryAccessGrants.revokedAt),
+					),
+				);
 			await tx.insert(complimentaryAccessGrants).values({
 				userId: user.id,
 				reason: invite.complimentaryAccessReason,

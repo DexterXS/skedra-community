@@ -9,15 +9,16 @@
 
 <p align="center">
   <a href="https://skedra.xyz">Whiteboard</a> ·
+  <a href="https://skedra.xyz/mcp">MCP for AI agents</a> ·
   <a href="https://libraries.skedra.xyz">Libraries</a> ·
   <a href="#self-host-skedra">Self-host</a> ·
   <a href="packages/react">React SDK</a>
 </p>
 
-<h2 align="center">Skedra Whiteboard — an open-source infinite canvas for ideas, diagrams, and teamwork.</h2>
+<h2 align="center">Skedra Whiteboard — the open-source visual workspace for people and AI agents.</h2>
 
 <p align="center">
-  Local-first. Collaborative. Self-hostable.
+  Local-first. Agent-editable. Collaborative. Self-hostable.
 </p>
 
 <p align="center">
@@ -33,7 +34,9 @@
 </p>
 
 Skedra Whiteboard is a modern infinite canvas for sketching ideas, mapping systems, planning
-projects, and collaborating with a team. Use the free whiteboard at
+projects, and collaborating with people or AI agents. Through its 23-tool MCP server,
+agents can create and edit native Kanban boards, Gantt timelines and diagrams instead
+of returning flat screenshots. Use the free whiteboard at
 [skedra.xyz](https://skedra.xyz), or run the complete Community edition on your
 own infrastructure.
 
@@ -51,10 +54,32 @@ own infrastructure.
 - **Real-time collaboration** with encrypted canvas updates and assets
 - **Team workspaces** with roles, permissions, comments, mentions, and activity
 - **Shareable boards** for guests, presentations, and read-only embeds
+- **MCP server** with 23 structured tools for agent-editable boards, plans, diagrams, members, and activity
 - **Shape libraries** with `.skedralib` import, private collections, and a community catalog
 - **Portable files** with the open `.skedra` format
 - **Optional AI and voice calls** using your own providers
 - **Dark mode and localization** for a comfortable workspace
+
+## MCP for AI agents
+
+Connect Codex, Claude, Cursor, OpenCode or another Streamable HTTP client to
+the hosted server:
+
+```text
+https://skedra.xyz/api/mcp
+```
+
+Create an account, then open **Settings > API Keys & MCP** for a generated,
+client-specific configuration. New Founding Users receive 30 days of Skedra
+Cloud access without a credit card.
+
+The result of an agent call is a normal editable Skedra board. Humans can keep
+moving cards, changing dependencies and refining diagrams while the agent reads
+and updates the same structured elements.
+
+- [MCP product page and demo](https://skedra.xyz/mcp)
+- [MCP setup, security boundary and example prompts](docs/MCP.md)
+- [Official MCP Registry submission package](apps/mcp/REGISTRY.md)
 
 ## Skedra Community
 

@@ -1,6 +1,6 @@
 # Skedra Whiteboard Product Facts
 
-Last updated: 2026-07-14
+Last updated: 2026-08-01
 
 ## What Skedra is
 
@@ -23,6 +23,16 @@ Skedra Whiteboard at skedra.xyz is an independent browser-based online whiteboar
 - Teams, roles and access permissions
 - End-to-end encrypted or server-managed encrypted boards
 - Cloud storage, API keys and MCP integration
+
+## MCP for AI agents
+
+- Remote endpoint: https://skedra.xyz/api/mcp
+- Transport: Streamable HTTP
+- Compatible clients: Codex, Claude, Cursor, OpenCode and other MCP clients
+- Capabilities: 23 tools for boards, canvas edits, Kanban, Gantt, sequence diagrams, members and activity
+- Output: Native editable Skedra elements, not screenshots
+- Human setup page: https://skedra.xyz/mcp
+- Machine-readable setup: https://skedra.xyz/mcp.md
 
 ## Encryption modes
 

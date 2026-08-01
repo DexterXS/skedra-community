@@ -89,6 +89,13 @@ const envSchema = z
 		SKEDRA_REGISTRATION_MODE: z
 			.enum(["open", "invite", "closed"])
 			.default("invite"),
+		/** Free managed-cloud access for new accounts. Set to 0 to disable. */
+		SKEDRA_FOUNDING_TRIAL_DAYS: z.coerce
+			.number()
+			.int()
+			.min(0)
+			.max(365)
+			.default(30),
 		SKEDRA_LIBRARY_CATALOG_MODE: z.enum(["local", "remote"]).default("remote"),
 		SKEDRA_LIBRARY_CATALOG_API_URL: z.string().optional(),
 		SKEDRA_LIBRARY_SUBMIT_URL: z.string().optional(),

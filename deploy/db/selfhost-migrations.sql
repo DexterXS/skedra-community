@@ -872,3 +872,24 @@ CREATE INDEX IF NOT EXISTS "mcp_oauth_tokens_user_client_idx"
 	ON "mcp_oauth_tokens" ("user_id", "client_id");
 CREATE INDEX IF NOT EXISTS "mcp_oauth_tokens_expiry_idx"
 	ON "mcp_oauth_tokens" ("expires_at");
+
+-- Privacy-sparse launch funnel and seven-day retention. Identifiers in this
+-- table are one-way HMACs; raw visitor/session identifiers never reach disk.
+CREATE TABLE IF NOT EXISTS "growth_events" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event" text NOT NULL,
+	"visitor_hash" text NOT NULL,
+	"session_hash" text NOT NULL,
+	"pathname" text NOT NULL,
+	"context" text,
+	"referrer_host" text,
+	"utm_source" text,
+	"utm_medium" text,
+	"utm_campaign" text,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "growth_events_event_created_idx"
+	ON "growth_events" ("event", "created_at");
+CREATE INDEX IF NOT EXISTS "growth_events_visitor_created_idx"
+	ON "growth_events" ("visitor_hash", "created_at");

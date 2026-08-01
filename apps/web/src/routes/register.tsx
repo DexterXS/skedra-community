@@ -8,6 +8,7 @@ import {
 	unlockOrCreateUserE2eeIdentity,
 	withE2eeKeyFragmentPath,
 } from "@/lib/e2ee";
+import { trackGrowthEvent } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import { Loader2 } from "lucide-react";
@@ -64,7 +65,12 @@ export function RegisterPage() {
 		);
 	}
 
-	if (config.data?.managed && !inviteToken && !hasSelectedPlan) {
+	if (
+		config.data?.managed &&
+		!inviteToken &&
+		!hasSelectedPlan &&
+		(config.data.foundingTrialDays ?? 0) <= 0
+	) {
 		return (
 			<Navigate
 				to={`/pricing?redirect=${encodeURIComponent(requestedRedirect)}`}
@@ -79,6 +85,9 @@ export function RegisterPage() {
 
 	const handleSubmit = async (event: React.FormEvent) => {
 		event.preventDefault();
+		trackGrowthEvent("signup_started", {
+			context: hasSelectedPlan ? (plan ?? "plan") : "founding_trial",
+		});
 		setError("");
 		setLoading(true);
 
@@ -98,6 +107,9 @@ export function RegisterPage() {
 				setError(result.error.message ?? t("auth.register.failed"));
 				return;
 			}
+			trackGrowthEvent("signup_completed", {
+				context: hasSelectedPlan ? (plan ?? "plan") : "founding_trial",
+			});
 			try {
 				const identityResult = await identityQuery.refetch();
 				await unlockOrCreateUserE2eeIdentity({
@@ -181,7 +193,7 @@ export function RegisterPage() {
 					minLength={8}
 				/>
 			</div>
-			{config.data?.managed && hasSelectedPlan && (
+			{config.data?.managed && (
 				<label className="flex items-start gap-3 text-sm leading-5 text-muted-foreground">
 					<input
 						type="checkbox"
@@ -211,6 +223,13 @@ export function RegisterPage() {
 					</span>
 				</label>
 			)}
+			{config.data?.managed && (config.data.foundingTrialDays ?? 0) > 0 ? (
+				<p className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-muted-foreground">
+					{config.data.foundingTrialDays} Tage Founding-User-Zugang, ohne
+					Kreditkarte. Danach entscheidest du, ob du Skedra Cloud weiter nutzen
+					möchtest.
+				</p>
+			) : null}
 		</AuthFormLayout>
 	);
 }

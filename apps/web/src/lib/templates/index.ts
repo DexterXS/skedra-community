@@ -13,6 +13,7 @@ import {
 	createCanvasTemplateElements,
 } from "@skedra/canvas-core";
 import * as Y from "yjs";
+import { createAiLaunchTemplate } from "./ai-launch";
 import { createFlowchartTemplate } from "./flowchart";
 import { createGanttTemplate } from "./gantt";
 import { createMindmapTemplate } from "./mindmap";
@@ -33,6 +34,13 @@ export interface WhiteboardTemplate {
 }
 
 export const TEMPLATES: WhiteboardTemplate[] = [
+	{
+		id: "ai-launch",
+		name: "AI-Produktlaunch",
+		description: "Demo-Board mit Kanban und Gantt für einen AI-Launch",
+		icon: "🚀",
+		create: (cx, cy, theme) => createAiLaunchTemplate(cx, cy, theme),
+	},
 	{
 		id: "kanban",
 		name: "Kanban-Board",

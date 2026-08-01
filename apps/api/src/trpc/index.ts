@@ -5,6 +5,7 @@ import { apiKeyRouter } from "./routers/api-key";
 import { assetsRouter } from "./routers/assets";
 import { billingRouter } from "./routers/billing";
 import { callsRouter } from "./routers/calls";
+import { growthRouter } from "./routers/growth";
 import { instanceRouter } from "./routers/instance";
 import { integrationsRouter } from "./routers/integrations";
 import { shapeLibraryRouter } from "./routers/shape-library";
@@ -22,6 +23,7 @@ export const appRouter = router({
 	assets: assetsRouter,
 	billing: billingRouter,
 	calls: callsRouter,
+	growth: growthRouter,
 	ai: aiRouter,
 	integrations: integrationsRouter,
 	team: teamRouter,

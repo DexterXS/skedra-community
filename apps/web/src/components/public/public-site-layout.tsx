@@ -44,6 +44,9 @@ export function PublicSiteLayout({ children }: { children: ReactNode }) {
 							</Link>
 						</Button>
 						<Button asChild variant="ghost" size="sm">
+							<Link to={publicPath("/mcp")}>MCP</Link>
+						</Button>
+						<Button asChild variant="ghost" size="sm">
 							<Link to={publicPath("/pricing")}>{t("publicSite.pricing")}</Link>
 						</Button>
 						<Button asChild variant="ghost" size="sm">
@@ -86,6 +89,14 @@ export function PublicSiteLayout({ children }: { children: ReactNode }) {
 				{menuOpen && (
 					<nav className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-background px-4 py-4 md:hidden">
 						<div className="mx-auto grid max-w-6xl gap-2">
+							<Button asChild variant="ghost" className="justify-start">
+								<Link
+									to={publicPath("/mcp")}
+									onClick={() => setMenuOpen(false)}
+								>
+									MCP
+								</Link>
+							</Button>
 							<Button asChild variant="ghost" className="justify-start">
 								<Link
 									to={publicPath("/whiteboard")}
@@ -147,6 +158,9 @@ export function PublicSiteLayout({ children }: { children: ReactNode }) {
 							</Link>
 							<Link className="hover:text-foreground" to={publicPath("/")}>
 								{t("publicSite.freeWhiteboard")}
+							</Link>
+							<Link className="hover:text-foreground" to={publicPath("/mcp")}>
+								MCP for AI agents
 							</Link>
 							<Link
 								className="hover:text-foreground"

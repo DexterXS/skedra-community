@@ -3186,6 +3186,11 @@ export const deMessages = {
 	},
 	templates: {
 		title: "Vorlagen",
+		"ai-launch": {
+			name: "AI-Produktlaunch",
+			description:
+				"Demo-Board mit Kanban-Aufgaben und einer abgestimmten Gantt-Zeitachse",
+		},
 		kanban: {
 			name: "Kanban-Board",
 			description:

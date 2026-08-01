@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { trackGrowthEvent, trackGrowthEventOnce } from "@/lib/growth-analytics";
 import { trpc } from "@/lib/trpc";
 import {
 	BadgeCheck,
@@ -7,6 +8,7 @@ import {
 	Loader2,
 	ShieldCheck,
 } from "lucide-react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router";
 
 const statusLabels: Record<string, string> = {
@@ -45,6 +47,17 @@ export function BillingSettings() {
 			portalStatuses.has(subscription.status),
 	);
 	const actionError = checkout.error ?? portal.error;
+
+	useEffect(() => {
+		if (searchParams.get("checkout") === "success") {
+			trackGrowthEventOnce("checkout_completed", { context: "settings" });
+		}
+	}, [searchParams]);
+
+	const startCheckout = (plan: "pro_monthly" | "pro_yearly") => {
+		trackGrowthEvent("checkout_started", { context: plan });
+		checkout.mutate({ plan });
+	};
 
 	if (isLoading) {
 		return (
@@ -175,7 +188,7 @@ export function BillingSettings() {
 							<div className="mt-4 flex flex-wrap gap-3">
 								<Button
 									disabled={checkout.isPending}
-									onClick={() => checkout.mutate({ plan: "pro_monthly" })}
+									onClick={() => startCheckout("pro_monthly")}
 								>
 									{checkout.isPending && (
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -185,7 +198,7 @@ export function BillingSettings() {
 								<Button
 									variant="outline"
 									disabled={checkout.isPending}
-									onClick={() => checkout.mutate({ plan: "pro_yearly" })}
+									onClick={() => startCheckout("pro_yearly")}
 								>
 									Jährliches Abo
 								</Button>

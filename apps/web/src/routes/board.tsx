@@ -35,6 +35,7 @@ import {
 	unlockOrCreateUserE2eeIdentity,
 	withE2eeKeyFragment,
 } from "@/lib/e2ee";
+import { trackGrowthEvent } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import { trpc } from "@/lib/trpc";
 import {
@@ -773,6 +774,7 @@ export function BoardPage() {
 	const handleCopyShare = async () => {
 		if (!shareUrl) return;
 		await navigator.clipboard.writeText(shareUrl);
+		trackGrowthEvent("share_link_copied", { context: "presentation" });
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2000);
 	};
@@ -780,6 +782,7 @@ export function BoardPage() {
 	const handleCopyEmbedUrl = async () => {
 		if (!embedUrl) return;
 		await navigator.clipboard.writeText(embedUrl);
+		trackGrowthEvent("share_link_copied", { context: "embed" });
 		setEmbedCopied(true);
 		setTimeout(() => setEmbedCopied(false), 2000);
 	};

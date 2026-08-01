@@ -25,6 +25,7 @@ import {
 	storeE2eeKey,
 	withE2eeKeyFragmentPath,
 } from "@/lib/e2ee";
+import { trackGrowthEvent, trackGrowthEventOnce } from "@/lib/growth-analytics";
 import { useI18n } from "@/lib/i18n";
 import { localizePublicPath } from "@/lib/public-path";
 import { trpc } from "@/lib/trpc";
@@ -67,6 +68,12 @@ export function GuestCanvasPage() {
 	const zenMode = useCanvasStore((state) => state.zenMode);
 	const activeTool = useCanvasStore((state) => state.activeTool);
 	const activePanel = useCanvasStore((state) => state.activePanel);
+
+	useEffect(() => {
+		if (elementCount > 0) {
+			trackGrowthEventOnce("canvas_activated", { context: "guest_canvas" });
+		}
+	}, [elementCount]);
 
 	const createWithState = trpc.whiteboard.createWithState.useMutation({
 		onSuccess: (board) => {
@@ -119,6 +126,7 @@ export function GuestCanvasPage() {
 	const openHelp = () => canvasCommandRef.current?.openHelp();
 
 	const handleSaveClick = () => {
+		trackGrowthEvent("cloud_intent", { context: "save_guest_board" });
 		if (publicConfig?.managed !== false && !billing?.accessGranted) {
 			navigate(
 				`${publicPath("/pricing")}?redirect=${encodeURIComponent(`${publicPath("/")}?save=1`)}`,
@@ -138,6 +146,7 @@ export function GuestCanvasPage() {
 	};
 
 	const handleLiveCollaborationClick = () => {
+		trackGrowthEvent("collaboration_started", { context: "guest_dialog" });
 		setLiveCollabDialogOpen(true);
 	};
 
@@ -185,18 +194,22 @@ export function GuestCanvasPage() {
 	};
 
 	const handleExportVisual = (format: "svg" | "png" | "pdf" | "pptx") => {
+		trackGrowthEvent("export_used", { context: format });
 		void canvasCommandRef.current?.exportVisual(format);
 	};
 
 	const handleSaveSkedra = () => {
+		trackGrowthEvent("export_used", { context: "skedra" });
 		canvasFileRef.current?.exportSkedra();
 	};
 
 	const handleSaveExcalidraw = () => {
+		trackGrowthEvent("export_used", { context: "excalidraw" });
 		canvasFileRef.current?.exportExcalidraw();
 	};
 
 	const handleSaveEncryptedSkedra = () => {
+		trackGrowthEvent("export_used", { context: "encrypted_skedra" });
 		void canvasFileRef.current?.exportEncryptedSkedra();
 	};
 

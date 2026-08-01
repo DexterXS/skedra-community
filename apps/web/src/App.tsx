@@ -1,3 +1,5 @@
+import { GrowthConsentBanner } from "@/components/public/growth-consent";
+import { GrowthPageTracker } from "@/components/public/growth-page-tracker";
 import { SeoManager } from "@/components/public/seo-manager";
 import { getApiUrl } from "@/lib/api-url";
 import { I18nProvider } from "@/lib/i18n";
@@ -36,6 +38,9 @@ const PricingPage = lazy(() =>
 );
 const WhiteboardPage = lazy(() =>
 	import("@/routes/whiteboard").then((m) => ({ default: m.WhiteboardPage })),
+);
+const McpPage = lazy(() =>
+	import("@/routes/mcp").then((m) => ({ default: m.McpPage })),
 );
 const PrivacyPage = lazy(() =>
 	import("@/routes/privacy").then((m) => ({ default: m.PrivacyPage })),
@@ -159,6 +164,8 @@ export function App() {
 				<QueryClientProvider client={queryClient}>
 					<BrowserRouter>
 						<SeoManager />
+						<GrowthPageTracker />
+						<GrowthConsentBanner />
 						<Routes>
 							<Route
 								path="/login"
@@ -205,6 +212,22 @@ export function App() {
 								element={
 									<Suspense fallback={<PageLoader />}>
 										<WhiteboardPage />
+									</Suspense>
+								}
+							/>
+							<Route
+								path="/mcp"
+								element={
+									<Suspense fallback={<PageLoader />}>
+										<McpPage />
+									</Suspense>
+								}
+							/>
+							<Route
+								path="/en/mcp"
+								element={
+									<Suspense fallback={<PageLoader />}>
+										<McpPage />
 									</Suspense>
 								}
 							/>

@@ -2,6 +2,7 @@ import { PublicSiteLayout } from "@/components/public/public-site-layout";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { localizePublicPath } from "@/lib/public-path";
+import { trpc } from "@/lib/trpc";
 import {
 	BadgeCheck,
 	Check,
@@ -64,6 +65,7 @@ export function PricingPage() {
 	const publicPath = (path: string) => localizePublicPath(path, locale);
 	const [period, setPeriod] = useState<BillingPeriod>("yearly");
 	const [searchParams] = useSearchParams();
+	const { data: publicConfig } = trpc.billing.getPublicConfig.useQuery();
 	const redirect = safeRedirect(searchParams.get("redirect"));
 	const plan = period === "yearly" ? "pro_yearly" : "pro_monthly";
 	const registerUrl = `/register?${new URLSearchParams({ plan, redirect }).toString()}`;
@@ -87,6 +89,32 @@ export function PricingPage() {
 					</p>
 				</div>
 			</section>
+
+			{(publicConfig?.foundingTrialDays ?? 0) > 0 ? (
+				<section className="px-4 pb-10 sm:px-6">
+					<div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 px-5 py-4 text-center sm:flex-row sm:text-left">
+						<div>
+							<p className="font-semibold">
+								{locale === "en"
+									? `${publicConfig?.foundingTrialDays} days of Founding User access`
+									: `${publicConfig?.foundingTrialDays} Tage Founding-User-Zugang`}
+							</p>
+							<p className="mt-1 text-sm text-muted-foreground">
+								{locale === "en"
+									? "Try Cloud boards, collaboration and MCP without a credit card."
+									: "Cloud-Boards, Zusammenarbeit und MCP ohne Kreditkarte testen."}
+							</p>
+						</div>
+						<Button asChild>
+							<Link
+								to={`/register?${new URLSearchParams({ redirect }).toString()}`}
+							>
+								{locale === "en" ? "Start free" : "Kostenlos starten"}
+							</Link>
+						</Button>
+					</div>
+				</section>
+			) : null}
 
 			<section className="px-4 pb-20 sm:px-6">
 				<div className="mx-auto max-w-5xl">

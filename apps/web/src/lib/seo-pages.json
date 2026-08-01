@@ -403,6 +403,52 @@
 			}
 		]
 	},
+	"/mcp": {
+		"title": {
+			"de": "MCP Whiteboard für AI-Agenten | Skedra",
+			"en": "MCP Whiteboard for AI Agents | Skedra"
+		},
+		"description": {
+			"de": "Verbinde Codex, Claude, Cursor oder OpenCode per MCP mit Skedra. AI-Agenten erstellen und bearbeiten Kanban-Boards, Gantt-Pläne und Diagramme live.",
+			"en": "Connect Codex, Claude, Cursor or OpenCode to Skedra with MCP. AI agents create and edit Kanban boards, Gantt plans and diagrams live."
+		},
+		"canonical": "https://skedra.xyz/mcp",
+		"robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+		"schema": [
+			{
+				"@context": "https://schema.org",
+				"@type": "WebPage",
+				"@id": "https://skedra.xyz/mcp#webpage",
+				"url": "https://skedra.xyz/mcp",
+				"name": "Skedra MCP for AI agents",
+				"inLanguage": "de",
+				"about": { "@id": "https://skedra.xyz/#software" }
+			}
+		]
+	},
+	"/en/mcp": {
+		"title": {
+			"de": "MCP Whiteboard for AI Agents | Skedra",
+			"en": "MCP Whiteboard for AI Agents | Skedra"
+		},
+		"description": {
+			"de": "Connect Codex, Claude, Cursor or OpenCode to Skedra with MCP. AI agents create and edit Kanban boards, Gantt plans and diagrams live.",
+			"en": "Connect Codex, Claude, Cursor or OpenCode to Skedra with MCP. AI agents create and edit Kanban boards, Gantt plans and diagrams live."
+		},
+		"canonical": "https://skedra.xyz/en/mcp",
+		"robots": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+		"schema": [
+			{
+				"@context": "https://schema.org",
+				"@type": "WebPage",
+				"@id": "https://skedra.xyz/en/mcp#webpage",
+				"url": "https://skedra.xyz/en/mcp",
+				"name": "Skedra MCP for AI agents",
+				"inLanguage": "en",
+				"about": { "@id": "https://skedra.xyz/#software" }
+			}
+		]
+	},
 	"__private": {
 		"title": { "de": "Skedra", "en": "Skedra" },
 		"description": { "de": "Skedra Anwendung", "en": "Skedra application" },

@@ -27,7 +27,10 @@ import {
 	readAssetObject,
 } from "./lib/assets";
 import { auth } from "./lib/auth";
-import { userHasProductAccess } from "./lib/billing-entitlement";
+import {
+	grantFoundingUserTrial,
+	userHasProductAccess,
+} from "./lib/billing-entitlement";
 import { closeBoardLiveBus, subscribeBoardLive } from "./lib/board-live-bus";
 import {
 	type PresenceMember,
@@ -38,6 +41,11 @@ import {
 } from "./lib/board-presence";
 import { getCollabShareAccess, getEmbedShareAccess } from "./lib/collab-share";
 import { closeDatabase, db } from "./lib/db";
+import {
+	consumeGrowthEventRateLimit,
+	growthEventInputSchema,
+	recordGrowthEvent,
+} from "./lib/growth-events";
 import { getBoardAccess } from "./lib/permissions";
 import {
 	countPresentationAudience,
@@ -650,6 +658,40 @@ app.get("/api/health", async (c) => {
 	}
 });
 
+app.use(
+	"/api/analytics/events",
+	bodyLimit({
+		maxSize: 4 * 1024,
+		onError: (c) => c.json({ error: "Event payload too large" }, 413),
+	}),
+);
+
+app.post("/api/analytics/events", async (c) => {
+	if (env.SKEDRA_DEPLOYMENT_MODE !== "managed") return c.body(null, 204);
+	// nginx supplies X-Real-IP from its explicitly configured trusted peer. Use
+	// only the final forwarded hop as a direct-development fallback.
+	const clientIp =
+		c.req.header("x-real-ip")?.trim() ||
+		c.req.header("x-forwarded-for")?.split(",").at(-1)?.trim() ||
+		"unknown";
+	if (!consumeGrowthEventRateLimit(hashRateLimitToken(clientIp))) {
+		c.header("Retry-After", "60");
+		return c.json({ error: "Too many analytics events" }, 429);
+	}
+
+	const payload = await c.req.json().catch(() => null);
+	const parsed = growthEventInputSchema.safeParse(payload);
+	if (!parsed.success) return c.json({ error: "Invalid event" }, 400);
+
+	try {
+		await recordGrowthEvent(db, parsed.data);
+		return c.body(null, 204);
+	} catch (error) {
+		console.error("Growth event could not be recorded", error);
+		return c.body(null, 204);
+	}
+});
+
 app.route("/", mcpApp);
 app.route("/api", restApp);
 
@@ -961,6 +1003,12 @@ app.all("/api/auth/*", async (c) => {
 					email: signUp.email,
 					token: signUp.inviteToken,
 				});
+			}
+
+			// Invite grants win through the one-current-grant constraint. Direct
+			// managed-cloud signups receive the configured no-card founding trial.
+			if (user) {
+				await grantFoundingUserTrial(db, user.id);
 			}
 		}
 

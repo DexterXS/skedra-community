@@ -109,6 +109,9 @@ Registration defaults to invite-only after the first account:
 SKEDRA_REGISTRATION_MODE=invite
 ```
 
+`SKEDRA_FOUNDING_TRIAL_DAYS` applies only to the managed-cloud deployment mode.
+Self-hosted installations have no subscription gate and ignore this value.
+
 Modes:
 
 - `invite`: the first account can register, then new users need an invite link.

@@ -893,3 +893,13 @@ CREATE INDEX IF NOT EXISTS "growth_events_event_created_idx"
 	ON "growth_events" ("event", "created_at");
 CREATE INDEX IF NOT EXISTS "growth_events_visitor_created_idx"
 	ON "growth_events" ("visitor_hash", "created_at");
+
+-- Managed upgrades can add the analytics read privilege without failing
+-- Community installations where the private Ops role does not exist.
+DO $$
+BEGIN
+	IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'skedra_ops_metrics') THEN
+		GRANT SELECT ON TABLE growth_events TO skedra_ops_metrics;
+	END IF;
+END
+$$;

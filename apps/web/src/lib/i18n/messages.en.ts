@@ -274,6 +274,11 @@ export const enMessages = {
 		storageWarning:
 			"Your drawings are saved locally in your browser. This storage can be cleared at any time — save to the cloud regularly.",
 		startDrawingHint: "Pick a tool and start drawing!",
+		selfHost: {
+			title: "Self-host Skedra",
+			description:
+				"Open source on your infrastructure — full data control and no cloud paywall.",
+		},
 		onboarding: {
 			menuHint: "Export, settings, languages …",
 			toolbarHint: "Pick a tool &\nstart drawing!",

@@ -278,6 +278,11 @@ export const deMessages = {
 		storageWarning:
 			"Deine Zeichnungen werden lokal im Browser gespeichert. Dieser Speicher kann jederzeit gelöscht werden — speichere regelmäßig in der Cloud.",
 		startDrawingHint: "Wähle ein Werkzeug und beginne zu zeichnen!",
+		selfHost: {
+			title: "Skedra selbst hosten",
+			description:
+				"Open Source auf deiner Infrastruktur — volle Datenkontrolle und keine Cloud-Paywall.",
+		},
 		onboarding: {
 			menuHint: "Exportieren, Einstellungen, Sprachen …",
 			toolbarHint: "Wähle ein\nWerkzeug &\nbeginne zu\nzeichnen!",

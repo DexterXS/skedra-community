@@ -2,7 +2,15 @@ import { GuestOnboardingAnnotation } from "@/components/guest/guest-onboarding-a
 import { GuestToolbarHints } from "@/components/guest/guest-toolbar-hints";
 import { useI18n } from "@/lib/i18n";
 import { localizePublicPath } from "@/lib/public-path";
-import { HelpCircle, LogIn, Save, UserPlus, Users } from "lucide-react";
+import {
+	ArrowRight,
+	HelpCircle,
+	LogIn,
+	Save,
+	Server,
+	UserPlus,
+	Users,
+} from "lucide-react";
 import { Link } from "react-router";
 
 interface GuestWelcomeSplashProps {
@@ -72,11 +80,28 @@ export function GuestWelcomeSplash({
 					<p className="mt-3 hidden font-comic-note text-sm leading-relaxed text-muted-foreground lg:block">
 						{t("guestCanvas.storageWarning")}
 					</p>
+					<Link
+						to={publicPath("/open-source-whiteboard-self-hosted")}
+						className="pointer-events-auto mt-5 hidden w-full items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-left transition-colors hover:border-primary/55 hover:bg-primary/10 lg:flex"
+					>
+						<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
+							<Server className="h-5 w-5" />
+						</span>
+						<span className="min-w-0 flex-1">
+							<span className="block font-comic-note text-base font-bold text-foreground">
+								{t("guestCanvas.selfHost.title")}
+							</span>
+							<span className="mt-0.5 block font-comic-note text-xs leading-relaxed text-muted-foreground">
+								{t("guestCanvas.selfHost.description")}
+							</span>
+						</span>
+						<ArrowRight className="h-4 w-4 shrink-0 text-primary" />
+					</Link>
 					<p className="mt-4 font-comic-note text-sm leading-relaxed text-muted-foreground lg:hidden">
 						{t("guestCanvas.startDrawingHint")}
 					</p>
 
-					<ul className="mt-8 hidden space-y-3 text-left font-comic-note text-base lg:block">
+					<ul className="mt-5 hidden space-y-3 text-left font-comic-note text-base lg:block">
 						<li>
 							<button
 								type="button"

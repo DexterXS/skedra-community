@@ -85,6 +85,18 @@ jobs:
       - name: Initialize MCP E2E database
         run: pnpm --filter @skedra/db db:push
 
+      - name: Test ops analytics SQL
+        run: |
+          postgres_container="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}' | head -n 1)"
+          test -n "$postgres_container"
+          analytics_json="$(
+            docker exec -i "$postgres_container" \
+              psql -U skedra_ci -d skedra_ci -v ON_ERROR_STOP=1 -A -t -q \
+              < deploy/managed/monitoring/ops-metrics/analytics.sql
+          )"
+          test -n "$analytics_json"
+          printf '%s' "$analytics_json" | grep --quiet '"days" : 30'
+
       - name: Start API for MCP E2E
         run: |
           pnpm --filter @skedra/api exec tsx src/index.ts > "$RUNNER_TEMP/skedra-api.log" 2>&1 &

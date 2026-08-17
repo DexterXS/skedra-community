@@ -895,11 +895,34 @@ CREATE INDEX IF NOT EXISTS "growth_events_visitor_created_idx"
 	ON "growth_events" ("visitor_hash", "created_at");
 
 -- Managed upgrades can add the analytics read privilege without failing
--- Community installations where the private Ops role does not exist.
+-- Community installations where the private Ops role does not exist. The
+-- managed role name is intentionally not assumed: existing installations may
+-- use a differently named role in OPS_METRICS_DATABASE_URL.
 DO $$
+DECLARE
+	metrics_role record;
 BEGIN
 	IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'skedra_ops_metrics') THEN
 		GRANT SELECT ON TABLE growth_events TO skedra_ops_metrics;
 	END IF;
+
+	FOR metrics_role IN
+		SELECT rolname
+		FROM pg_roles
+		WHERE rolname <> current_user
+			AND NOT rolsuper
+			AND has_table_privilege(rolname, 'public.users', 'SELECT')
+			AND has_table_privilege(rolname, 'public.sessions', 'SELECT')
+			AND has_table_privilege(
+				rolname,
+				'public.whiteboard_e2ee_updates',
+				'SELECT'
+			)
+	LOOP
+		EXECUTE format(
+			'GRANT SELECT ON TABLE public.growth_events TO %I',
+			metrics_role.rolname
+		);
+	END LOOP;
 END
 $$;

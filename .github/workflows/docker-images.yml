@@ -89,10 +89,25 @@ jobs:
         run: |
           postgres_container="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}' | head -n 1)"
           test -n "$postgres_container"
+          docker exec -i "$postgres_container" \
+            psql -U skedra_ci -d skedra_ci -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE skedra_ops_metrics_ci;
+          GRANT SELECT ON users, sessions, whiteboard_e2ee_updates
+            TO skedra_ops_metrics_ci;
+          SQL
+          docker exec -i "$postgres_container" \
+            psql -U skedra_ci -d skedra_ci -v ON_ERROR_STOP=1 \
+            < deploy/db/selfhost-migrations.sql
+          docker exec -i "$postgres_container" \
+            psql -U skedra_ci -d skedra_ci -v ON_ERROR_STOP=1 \
+            -tAc "select has_table_privilege('skedra_ops_metrics_ci', 'growth_events', 'SELECT')" \
+            | grep --quiet '^t$'
           analytics_json="$(
             docker exec -i "$postgres_container" \
               psql -U skedra_ci -d skedra_ci -v ON_ERROR_STOP=1 -A -t -q \
-              < deploy/managed/monitoring/ops-metrics/analytics.sql
+                -c 'set role skedra_ops_metrics_ci' \
+                -f - \
+                < deploy/managed/monitoring/ops-metrics/analytics.sql
           )"
           test -n "$analytics_json"
           printf '%s' "$analytics_json" | grep --quiet '"days" : 30'

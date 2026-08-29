@@ -86,6 +86,7 @@ jobs:
         run: pnpm --filter @skedra/db db:push
 
       - name: Test ops analytics SQL
+        if: ${{ hashFiles('deploy/managed/monitoring/ops-metrics/analytics.sql') != '' }}
         run: |
           postgres_container="$(docker ps --filter ancestor=postgres:16-alpine --format '{{.ID}}' | head -n 1)"
           test -n "$postgres_container"

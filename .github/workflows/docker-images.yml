@@ -8,8 +8,13 @@ on:
       - "apps/api/**"
       - "apps/mcp/**"
       - "deploy/db/**"
+      - "deploy/managed/maintenance/**"
+      - "deploy/managed/deploy-command.sh"
+      - "docker-compose.managed*.yml"
       - "deploy/managed/monitoring/**"
       - "deploy/managed/ops/access-admin/**"
+      - "deploy/managed/ops/docker-compose.yml"
+      - "scripts/ops-storage.test.mjs"
       - "package.json"
       - "packages/db/**"
       - "packages/shared/**"
@@ -81,6 +86,12 @@ jobs:
       - name: Test access administration
         if: ${{ hashFiles('deploy/managed/ops/access-admin/package.json') != '' }}
         run: npm test --prefix deploy/managed/ops/access-admin
+
+      - name: Test storage retention policy
+        if: ${{ hashFiles('deploy/managed/maintenance/test_storage_maintenance.py') != '' }}
+        run: |
+          python3 -m unittest discover -s deploy/managed/maintenance -p 'test_*.py'
+          bash -n deploy/managed/deploy-command.sh
 
       - name: Initialize MCP E2E database
         run: pnpm --filter @skedra/db db:push

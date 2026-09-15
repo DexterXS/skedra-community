@@ -1,8 +1,8 @@
 import { ThemePicker } from "@/components/theme/theme-picker";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Locale } from "@/lib/i18n";
 import { Palette } from "lucide-react";
 
-/** Darstellung und Sprache — lokal im Browser gespeichert. */
+/** Appearance and language — stored locally in the browser. */
 export function UserPreferencesCard() {
 	const { t, locale, setLocale } = useI18n();
 
@@ -35,11 +35,12 @@ export function UserPreferencesCard() {
 					</p>
 					<select
 						value={locale}
-						onChange={(event) => setLocale(event.target.value as "de" | "en")}
+						onChange={(event) => setLocale(event.target.value as Locale)}
 						className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
 					>
 						<option value="de">{t("common.german")}</option>
 						<option value="en">{t("common.english")}</option>
+						<option value="ru">Русский</option>
 					</select>
 				</div>
 			</div>

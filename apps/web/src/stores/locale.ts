@@ -1,10 +1,10 @@
-import type { Locale } from "@/lib/i18n";
+import type { UiLocale } from "@/lib/i18n";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface LocaleStore {
-	locale: Locale;
-	setLocale: (locale: Locale) => void;
+	locale: UiLocale;
+	setLocale: (locale: UiLocale) => void;
 }
 
 export const useLocaleStore = create<LocaleStore>()(
@@ -21,9 +21,10 @@ export const useLocaleStore = create<LocaleStore>()(
 );
 
 export function getCurrentLocale() {
-	return useLocaleStore.getState().locale;
+	const locale = useLocaleStore.getState().locale;
+	return locale === "ru" ? "en" : locale;
 }
 
 export function initLocale() {
-	document.documentElement.lang = getCurrentLocale();
+	document.documentElement.lang = useLocaleStore.getState().locale;
 }

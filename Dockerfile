@@ -96,7 +96,6 @@ COPY --from=standalone-build /app/apps/libraries/dist /usr/share/skedra/librarie
 COPY deploy/standalone/nginx.conf /etc/nginx/http.d/default.conf
 COPY deploy/standalone/start.sh /app/start-standalone.sh
 RUN chmod +x /app/start-standalone.sh
-VOLUME ["/data"]
 EXPOSE 80
 HEALTHCHECK CMD wget -q -O /dev/null http://127.0.0.1/health || exit 1
 CMD ["/app/start-standalone.sh"]

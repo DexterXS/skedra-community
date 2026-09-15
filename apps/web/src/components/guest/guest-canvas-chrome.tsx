@@ -13,7 +13,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCanvasStore } from "@/hooks/use-canvas-store";
-import { useI18n } from "@/lib/i18n";
+import { type UiLocale, useI18n } from "@/lib/i18n";
 import { localizePublicPath } from "@/lib/public-path";
 import { useThemeStore } from "@/stores/theme";
 import {
@@ -71,13 +71,14 @@ export function GuestCanvasChrome({
 	workspacePanelOpen,
 	onToggleWorkspacePanel,
 }: GuestCanvasChromeProps) {
-	const { t, locale, setLocale } = useI18n();
+	const { t, locale, selectedLocale, setLocale } = useI18n();
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
 	const publicPath = (path: string) => localizePublicPath(path, locale);
-	const selectLocale = (nextLocale: "de" | "en") => {
+	const selectLocale = (nextLocale: UiLocale) => {
 		setLocale(nextLocale);
-		navigate(localizePublicPath(pathname, nextLocale));
+		const routeLocale = nextLocale === "ru" ? "en" : nextLocale;
+		navigate(localizePublicPath(pathname, routeLocale));
 	};
 	const theme = useThemeStore((state) => state.theme);
 	const canvasBg = useCanvasStore((state) => state.canvasBg);
@@ -227,14 +228,15 @@ export function GuestCanvasChrome({
 								{t("common.language")}
 							</p>
 							<select
-								value={locale}
+								value={selectedLocale}
 								onChange={(event) =>
-									selectLocale(event.target.value as "de" | "en")
+									selectLocale(event.target.value as UiLocale)
 								}
 								className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
 							>
 								<option value="de">{t("common.german")}</option>
 								<option value="en">{t("common.english")}</option>
+								<option value="ru">Русский</option>
 							</select>
 						</div>
 

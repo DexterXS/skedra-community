@@ -1,10 +1,10 @@
 import { ThemePicker } from "@/components/theme/theme-picker";
-import { useI18n, type Locale } from "@/lib/i18n";
+import { useI18n, type UiLocale } from "@/lib/i18n";
 import { Palette } from "lucide-react";
 
 /** Appearance and language — stored locally in the browser. */
 export function UserPreferencesCard() {
-	const { t, locale, setLocale } = useI18n();
+	const { t, selectedLocale, setLocale } = useI18n();
 
 	return (
 		<div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -34,8 +34,8 @@ export function UserPreferencesCard() {
 						{t("profileSettings.preferencesCard.languageDescription")}
 					</p>
 					<select
-						value={locale}
-						onChange={(event) => setLocale(event.target.value as Locale)}
+						value={selectedLocale}
+						onChange={(event) => setLocale(event.target.value as UiLocale)}
 						className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
 					>
 						<option value="de">{t("common.german")}</option>
@@ -46,7 +46,7 @@ export function UserPreferencesCard() {
 			</div>
 
 			<p className="mt-4 text-xs text-muted-foreground">
-				{t("profileSettings.preferencesCard.storageHint", { locale })}
+				{t("profileSettings.preferencesCard.storageHint", { locale: selectedLocale })}
 			</p>
 		</div>
 	);

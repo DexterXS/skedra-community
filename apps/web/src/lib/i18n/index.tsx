@@ -2,19 +2,22 @@ import { useLocaleStore } from "@/stores/locale";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { TranslationParams, TranslationTree } from "./messages";
 
-export type Locale = "de" | "en" | "ru";
+/** Legacy locale used by existing public/SEO code. */
+export type Locale = "de" | "en";
+/** User-selectable UI locale. Russian falls back to English for legacy content. */
+export type UiLocale = Locale | "ru";
 
-type Messages = Partial<Record<Locale, TranslationTree>>;
+type Messages = Partial<Record<UiLocale, TranslationTree>>;
 const loadedMessages: Messages = {};
-const loadingMessages = new Map<Locale, Promise<TranslationTree>>();
+const loadingMessages = new Map<UiLocale, Promise<TranslationTree>>();
 
-const localeLoaders: Record<Locale, () => Promise<TranslationTree>> = {
+const localeLoaders: Record<UiLocale, () => Promise<TranslationTree>> = {
 	de: () => import("./messages.de").then((module) => module.deMessages),
 	en: () => import("./messages.en").then((module) => module.enMessages),
 	ru: () => import("./messages.ru").then((module) => module.ruMessages),
 };
 
-async function loadLocaleMessages(locale: Locale) {
+async function loadLocaleMessages(locale: UiLocale) {
 	if (loadedMessages[locale]) return loadedMessages[locale];
 	const existing = loadingMessages.get(locale);
 	if (existing) return existing;
@@ -29,7 +32,7 @@ async function loadLocaleMessages(locale: Locale) {
 }
 
 export async function loadI18nMessages(
-	locale: Locale = useLocaleStore.getState().locale,
+	locale: UiLocale = useLocaleStore.getState().locale,
 ) {
 	if (locale === "en") {
 		await loadLocaleMessages("en");
@@ -40,8 +43,11 @@ export async function loadI18nMessages(
 }
 
 interface I18nContextValue {
+	/** Normalized locale for legacy code that only supports German/English. */
 	locale: Locale;
-	setLocale: (locale: Locale) => void;
+	/** Actual locale selected by the user. */
+	selectedLocale: UiLocale;
+	setLocale: (locale: UiLocale) => void;
 	t: (key: string, params?: TranslationParams) => string;
 }
 
@@ -61,7 +67,7 @@ if (!globalScope.__skedraI18nContext) {
 
 I18nContext.displayName = "SkedraI18nContext";
 
-function setDocumentLocale(locale: Locale) {
+function setDocumentLocale(locale: UiLocale) {
 	document.documentElement.lang = locale;
 }
 
@@ -86,7 +92,7 @@ function resolveValue(
 }
 
 export function translate(
-	locale: Locale,
+	locale: UiLocale,
 	key: string,
 	params?: TranslationParams,
 ) {
@@ -101,27 +107,29 @@ export function translate(
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-	const locale = useLocaleStore((state) => state.locale);
+	const selectedLocale = useLocaleStore((state) => state.locale);
 	const setLocale = useLocaleStore((state) => state.setLocale);
 	const [messagesVersion, setMessagesVersion] = useState(0);
+	const locale: Locale = selectedLocale === "ru" ? "en" : selectedLocale;
 
 	useEffect(() => {
 		let cancelled = false;
-		setDocumentLocale(locale);
-		void loadI18nMessages(locale).then(() => {
+		setDocumentLocale(selectedLocale);
+		void loadI18nMessages(selectedLocale).then(() => {
 			if (!cancelled) setMessagesVersion((version) => version + 1);
 		});
 		return () => {
 			cancelled = true;
 		};
-	}, [locale]);
+	}, [selectedLocale]);
 
 	const contextValue: I18nContextValue = {
 		locale,
+		selectedLocale,
 		setLocale,
 		t: (key, params) => {
 			void messagesVersion;
-			return translate(locale, key, params);
+			return translate(selectedLocale, key, params);
 		},
 	};
 

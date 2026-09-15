@@ -2,7 +2,7 @@ import { useLocaleStore } from "@/stores/locale";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { TranslationParams, TranslationTree } from "./messages";
 
-export type Locale = "de" | "en";
+export type Locale = "de" | "en" | "ru";
 
 type Messages = Partial<Record<Locale, TranslationTree>>;
 const loadedMessages: Messages = {};
@@ -11,6 +11,7 @@ const loadingMessages = new Map<Locale, Promise<TranslationTree>>();
 const localeLoaders: Record<Locale, () => Promise<TranslationTree>> = {
 	de: () => import("./messages.de").then((module) => module.deMessages),
 	en: () => import("./messages.en").then((module) => module.enMessages),
+	ru: () => import("./messages.ru").then((module) => module.ruMessages),
 };
 
 async function loadLocaleMessages(locale: Locale) {
@@ -30,10 +31,10 @@ async function loadLocaleMessages(locale: Locale) {
 export async function loadI18nMessages(
 	locale: Locale = useLocaleStore.getState().locale,
 ) {
-	if (locale === "de") {
-		await loadLocaleMessages("de");
+	if (locale === "en") {
+		await loadLocaleMessages("en");
 	} else {
-		await Promise.all([loadLocaleMessages("de"), loadLocaleMessages(locale)]);
+		await Promise.all([loadLocaleMessages("en"), loadLocaleMessages(locale)]);
 	}
 	return loadedMessages;
 }
@@ -91,7 +92,7 @@ export function translate(
 ) {
 	const messages = loadedMessages;
 	const localized = resolveValue(messages[locale], key);
-	const fallback = resolveValue(messages.de, key);
+	const fallback = resolveValue(messages.en, key);
 	const value = localized ?? fallback;
 
 	if (typeof value === "function") return value(params ?? {});
